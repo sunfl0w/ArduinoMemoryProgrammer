@@ -5,12 +5,15 @@ const int memPin0 = 5;
 const int memPin7 = 12;
 const int writeEnablePin = 13;
 
-const int maxAddress = 2 << 8;
+const int maxAddress = 2048;
+
+int currentAddress = 0;
+int timeSinceLastData = 0;
 
 void setIOPinsMode(uint8_t mode) {
 	for (int pin = memPin0; pin <= memPin7; pin += 1) {
-    	pinMode(pin, mode);
-  	}
+		pinMode(pin, mode);
+	}
 }
 
 void setMemoryAddress(int address, bool enableOutput) {
@@ -23,12 +26,13 @@ void setMemoryAddress(int address, bool enableOutput) {
 }
 
 void writeToMemory(int address, byte data) {
+	setMemoryAddress(address, false);
 	setIOPinsMode(OUTPUT);
 
-  	for (int pin = memPin0; pin <= memPin7; pin += 1) {
-    	digitalWrite(pin, data & 1);
-    	data = data >> 1;
-  	}
+	for (int pin = memPin0; pin <= memPin7; pin += 1) {
+		digitalWrite(pin, data & 1);
+		data = data >> 1;
+	}
 
 	digitalWrite(writeEnablePin, LOW);
 	delayMicroseconds(1);
@@ -50,7 +54,7 @@ byte readFromMemory(int address) {
 
 void clearMemory() {
 	for (int address = 0; address < maxAddress; address++) {
-		writeToMemory(address, 0);
+		writeToMemory(address, 0x00);
 	}
 }
 
@@ -84,15 +88,29 @@ void setup() {
 	Serial.println("Memory cleared");
 
 	Serial.println("Programming memory");
-	//Write to memory here!
-	byte data[] = { 0x81, 0xcf, 0x92, 0x86, 0xcc, 0xa4, 0xa0, 0x8f, 0x80, 0x84, 0x88, 0xe0, 0xb1, 0xc2, 0xb0, 0xb8 };
+	Serial.println("Send data");
 
-	for (int address = 0; address < sizeof(data); address++) {
-		writeToMemory(address, data[address]);
+	while(timeSinceLastData < 3000) {
+		int now = millis();
+		if(Serial.available() > 0) {
+			byte data = Serial.read();
+			Serial.print("Received:");
+			Serial.println(data, DEC);
+			writeToMemory(currentAddress, data);
+			currentAddress++;
+			timeSinceLastData = 0;
+		} else {
+			timeSinceLastData += millis() - now;
+		}
 	}
-	Serial.println("Memory programmed");
 
+	Serial.println("No more data detected");
+	Serial.println("Memory programmed");
+	Serial.println("Memory dump");
 	printMemoryData();
+	Serial.println("Goodbye");
+
+	//byte data[] = { 0x81, 0xcf, 0x92, 0x86, 0xcc, 0xa4, 0xa0, 0x8f, 0x80, 0x84, 0x88, 0xe0, 0xb1, 0xc2, 0xb0, 0xb8 };
 }
 
 void loop() {}
