@@ -1,0 +1,3 @@
+This repo contains two simple programms to programm EEPROMs and FLASH memories with parrallel IO. Data for programming is transferred over serial. This makes the programmer very versatile. To build the programmer with an Arduino one needs to shift registers and direct connections of the IO lines of the memory to the Arduino. Lock into the Arduino sketch for pin assignments. You might also look into Ben Eaters EEPROM programmer which is very similar.
+
+For programming a binary file is openend by the Python script. This script will transer the data to the Arduino which is doing the actual programming. Options include the binary file name, the baudrate and the serial port name.

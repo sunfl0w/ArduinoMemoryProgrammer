@@ -5,7 +5,8 @@ const int memPin0 = 5;
 const int memPin7 = 12;
 const int writeEnablePin = 13;
 
-const int maxAddress = 2048;
+const int maxAddress = 2048; //Set this accordingly
+const int timeoutTime = 3000; //Timeout time in ms
 
 int currentAddress = 0;
 int timeSinceLastData = 0;
@@ -37,7 +38,7 @@ void writeToMemory(int address, byte data) {
 	digitalWrite(writeEnablePin, LOW);
 	delayMicroseconds(1);
 	digitalWrite(writeEnablePin, HIGH);
-	delay(10);
+	delayMicroseconds(10);
 }
 
 byte readFromMemory(int address) {
@@ -90,12 +91,15 @@ void setup() {
 	Serial.println("Programming memory");
 	Serial.println("Send data");
 
-	while(timeSinceLastData < 3000) {
+	while(timeSinceLastData < timeoutTime) {
 		int now = millis();
-		if(Serial.available() > 0) {
+		if(Serial.available() > 0 && currentAddress < maxAddress) {
 			byte data = Serial.read();
-			Serial.print("Received:");
-			Serial.println(data, DEC);
+
+			// Use for debugging
+			//Serial.print("Received:");
+			//Serial.println(data, DEC);
+
 			writeToMemory(currentAddress, data);
 			currentAddress++;
 			timeSinceLastData = 0;
@@ -109,8 +113,6 @@ void setup() {
 	Serial.println("Memory dump");
 	printMemoryData();
 	Serial.println("Goodbye");
-
-	//byte data[] = { 0x81, 0xcf, 0x92, 0x86, 0xcc, 0xa4, 0xa0, 0x8f, 0x80, 0x84, 0x88, 0xe0, 0xb1, 0xc2, 0xb0, 0xb8 };
 }
 
 void loop() {}

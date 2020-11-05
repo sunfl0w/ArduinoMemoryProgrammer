@@ -18,7 +18,7 @@ def main():
     dataFile = args.dataFile
     serialPort = args.serialPort
 
-    print("Boaudrate: " + baudRate)
+    print("Baudrate: " + baudRate)
     print("Data file: " +  dataFile)
     print("Serial port: " + serialPort)
 
@@ -48,10 +48,12 @@ def main():
             programmingEnded = True
 
         if(dataRequested and currentIndex < len(data)):
-            print("Sending: " + str(data[currentIndex]))
-            ser.write(bytearray([data[currentIndex]]))
+            # Use for debugging
+            # print("Sending: " + str(data[currentIndex]))
+
+            ser.write(bytes([data[currentIndex]]))
             currentIndex = currentIndex + 1
-            time.sleep(0.001)
+            time.sleep(0.001) # sleep 1 ms to move data more slowly
 
     ser.close();
 
