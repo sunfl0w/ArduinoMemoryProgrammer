@@ -60,7 +60,7 @@ void clearMemory() {
 }
 
 void printMemoryData() {
-	for (int base = 0; base <= 255; base += 16) {
+	for (int base = 0; base < maxAddress; base += 16) {
 		byte data[16];
 		for (int offset = 0; offset <= 15; offset += 1) {
 			data[offset] = readFromMemory(base + offset);

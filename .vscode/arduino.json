@@ -3,5 +3,5 @@
     "configuration": "cpu=atmega328old",
     "port": "/dev/ttyUSB0",
     "programmer": "ArduinoISP",
-    "sketch": "Test/MemProgrammerTest.ino"
+    "sketch": "MemProgrammer.ino"
 }
