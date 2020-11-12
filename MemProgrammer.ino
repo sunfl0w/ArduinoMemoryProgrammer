@@ -5,8 +5,8 @@ const int memPin0 = 5;
 const int memPin7 = 12;
 const int writeEnablePin = 13;
 
-const int maxAddress = 2048; //Set this accordingly
-const int timeoutTime = 3000; //Timeout time in ms
+const int maxAddress = 2048;   //Set this accordingly
+const int timeoutTime = 3000;  //Timeout time in ms
 
 int currentAddress = 0;
 int timeSinceLastData = 0;
@@ -91,12 +91,12 @@ void setup() {
 	Serial.println("Programming memory");
 	Serial.println("Send data");
 
-	while(timeSinceLastData < timeoutTime) {
+	while (timeSinceLastData < timeoutTime) {
 		int now = millis();
-		if(Serial.available() > 0 && currentAddress < maxAddress) {
+		if (Serial.available() > 0 && currentAddress < maxAddress) {
 			byte data = Serial.read();
 
-			// Use for debugging
+			//Use for debugging
 			//Serial.print("Received:");
 			//Serial.println(data, DEC);
 
