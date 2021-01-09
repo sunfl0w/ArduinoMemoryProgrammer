@@ -53,7 +53,7 @@ def main():
 
             ser.write(bytes([data[currentIndex]]))
             currentIndex = currentIndex + 1
-            time.sleep(0.01) # sleep 10 ms to move data more slowly
+            time.sleep(0.1) # sleep 10 ms to move data more slowly
 
     ser.close();
 

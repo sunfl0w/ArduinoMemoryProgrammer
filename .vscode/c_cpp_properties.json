@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "/home/sunfl0w/.arduino15/packages/arduino/tools/**",
-                "/home/sunfl0w/.arduino15/packages/arduino/hardware/avr/1.8.3/**"
+                "/home/sunfl0w/.arduino15/packages/arduino/hardware/avr/1.8.3/**",
+                "/usr/bin/libraries/**",
+                "/home/sunfl0w/Arduino/libraries/**"
             ],
             "forcedInclude": [
                 "/home/sunfl0w/.arduino15/packages/arduino/hardware/avr/1.8.3/cores/arduino/Arduino.h"
