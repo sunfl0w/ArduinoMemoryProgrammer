@@ -11,6 +11,7 @@ int currentAddress = 0;
 int timeSinceLastData = 0;
 
 enum StorageDevice {
+	Invalid,
 	AT28CSeries,
 	SST39SFSeries
 };
@@ -21,8 +22,8 @@ void setIOPinsMode(uint8_t mode) {
 	}
 }
 
-void setMemoryAddress(int address, bool enableOutput) {
-	shiftOut(dataPin, clockPin, MSBFIRST, (address >> 8) | (!enableOutput << 7));
+void setMemoryAddress(int address, bool enableChipOutput) {
+	shiftOut(dataPin, clockPin, MSBFIRST, (address >> 8) | (!enableChipOutput << 7));
 	shiftOut(dataPin, clockPin, MSBFIRST, address);
 
 	digitalWrite(latchPin, LOW);
@@ -30,21 +31,54 @@ void setMemoryAddress(int address, bool enableOutput) {
 	digitalWrite(latchPin, LOW);
 }
 
+void setOutputData(byte data) {
+	for (int pin = memPin0; pin <= memPin7; pin += 1) {
+		digitalWrite(pin, data & 1);
+		data = data >> 1;
+	}
+}
+
 void writeToMemory(StorageDevice storageDevice, int address, byte data) {
 	if (storageDevice == StorageDevice::AT28CSeries) {
 		setMemoryAddress(address, false);
 		setIOPinsMode(OUTPUT);
-
-		for (int pin = memPin0; pin <= memPin7; pin += 1) {
-			digitalWrite(pin, data & 1);
-			data = data >> 1;
-		}
-
+		setOutputData(data);
 		digitalWrite(writeEnablePin, LOW);
 		delayMicroseconds(1);
 		digitalWrite(writeEnablePin, HIGH);
 		delayMicroseconds(10);
 	} else if (storageDevice == StorageDevice::SST39SFSeries) {
+		digitalWrite(writeEnablePin, HIGH);
+		setIOPinsMode(OUTPUT);
+		delay(10);
+
+		setMemoryAddress(0x5555, false);
+		setOutputData(0xaa);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x2aaa, false);
+		setOutputData(0x55);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x5555, false);
+		setOutputData(0xa0);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(address, false);
+		setOutputData(data);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
 	} else {
 		Serial.println("Unable to write to memory. Storage device not recognized");
 	}
@@ -68,7 +102,56 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 			writeToMemory(storageDevice, address, 0x00);
 		}
 	} else if (storageDevice == StorageDevice::SST39SFSeries) {
-		
+		digitalWrite(writeEnablePin, HIGH);
+		setIOPinsMode(OUTPUT);
+		delay(10);
+
+		setMemoryAddress(0x5555, false);
+		setOutputData(0xaa);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x2aaa, false);
+		setOutputData(0x55);
+		writeToMemory(storageDevice, 0x2aaa, 0x55);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x5555, false);
+		setOutputData(0x80);
+		writeToMemory(storageDevice, 0x5555, 0x80);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x5555, false);
+		setOutputData(0xaa);
+		writeToMemory(storageDevice, 0x5555, 0xaa);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x2aaa, false);
+		setOutputData(0x55);
+		writeToMemory(storageDevice, 0x2aaa, 0x55);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
+
+		setMemoryAddress(0x5555, false);
+		setOutputData(0x10);
+		writeToMemory(storageDevice, 0x5555, 0x10);
+		digitalWrite(writeEnablePin, HIGH);
+		digitalWrite(writeEnablePin, LOW);
+		digitalWrite(writeEnablePin, HIGH);
+		delay(10);
 	} else {
 		Serial.println("Unable to clear memory. Storage device not recognized");
 	}
@@ -92,55 +175,42 @@ void printMemoryData(int maxAddress) {
 
 StorageDevice getStorageDeviceToProgram() {
 	Serial.println("Send storage device type");
-	Serial.println("Types are:");
-	Serial.println("- <AT28CSeries>");
-	Serial.println("- <SST39SFSeries>");
 
-	while (true) {
-		if (Serial.available() > 0) {
-			String deviceType = Serial.readString();
+	delay(1000);
 
-			if (deviceType == "AT28CSeries") {
-				Serial.println("Device type " + deviceType + " set");
-				return StorageDevice::AT28CSeries;
-			} else if (deviceType == "SST39SFSeries") {
-				Serial.println("Device type " + deviceType + " set");
-				return StorageDevice::SST39SFSeries;
-			} else {
-				Serial.println("Device type " + deviceType + " not recognized");
+	String deviceType = Serial.readString();
+	StorageDevice deviceTypeEnum = StorageDevice::Invalid;
 
-				Serial.println("Send storage device type");
-				Serial.println("Types are:");
-				Serial.println("- AT28CSeries");
-				Serial.println("- SST39SFSeries");
-			}
-		}
+	if (deviceType == "AT28CSeries") {
+		Serial.println("Device type " + deviceType + " set");;
+		return StorageDevice::AT28CSeries;
+	} else if (deviceType == "SST39SFSeries") {
+		Serial.println("Device type " + deviceType + " set");
+		return StorageDevice::SST39SFSeries;
+	} else {
+		Serial.println("Device type " + deviceType + " not recognized");
+		return StorageDevice::Invalid;
 	}
 }
 
 int getDataSizeToProgram() {
-	Serial.println("Send data size to program in bytes. Must be greater than zero");
-	Serial.println("<NumberOfBytes>");
+	Serial.println("Send data size in bytes");
 
-	while (true) {
-		if (Serial.available() > 0) {
-			String numberOfBytesMessage = Serial.readString();
-			int numberOfBytes = numberOfBytesMessage.toInt();
+	delay(1000);
 
-			if (numberOfBytes <= 0) {
-				Serial.println("Data size" + String(numberOfBytes) + " not greater than zero");
-				Serial.println("Send data size to program in bytes");
-				Serial.println("<NumberOfBytes>");
-			} else {
-				Serial.println("Data size to program is " + String(numberOfBytes) + " bytes");
-				return numberOfBytes;
-			}
-		}
+	int numberOfBytes = Serial.readString().toInt();
+
+	if (numberOfBytes <= 0) {
+		Serial.println("Data size " + String(numberOfBytes) + " invalid");
+		return 0;
+	} else {
+		Serial.println("Data size is " + String(numberOfBytes) + " bytes");
+		return numberOfBytes;
 	}
 }
 
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(57600);
 
 	pinMode(dataPin, OUTPUT);
 	pinMode(clockPin, OUTPUT);
@@ -149,14 +219,18 @@ void setup() {
 	pinMode(writeEnablePin, OUTPUT);
 
 	StorageDevice storageDevice = getStorageDeviceToProgram();
+	delay(1000);
 	int bytesToProgram = getDataSizeToProgram();
+	delay(1000);
 
 	Serial.println("Clearing memory");
 	clearMemory(storageDevice, bytesToProgram);
 	Serial.println("Memory cleared");
+	delay(1000);
 
 	Serial.println("Commencing programming");
 	Serial.println("Send next byte");
+	delay(1000);
 
 	while (timeSinceLastData < timeoutTime) {
 		int now = millis();
@@ -164,12 +238,14 @@ void setup() {
 			byte data = Serial.read();
 
 			//Use for debugging
-			//Serial.print("Received:");
-			//Serial.println(data, DEC);
+			Serial.print("Received:");
+			Serial.println(data, DEC);
 
 			writeToMemory(storageDevice, currentAddress, data);
 			currentAddress++;
 			timeSinceLastData = 0;
+			Serial.println("Send next byte");
+			delay(1000);
 		} else {
 			timeSinceLastData += millis() - now;
 		}
@@ -179,7 +255,8 @@ void setup() {
 	Serial.println("Memory programmed");
 	Serial.println("Memory dump");
 	printMemoryData(bytesToProgram);
-	Serial.println("Goodbye and have a nice day :D");
+	Serial.println("Goodbye");
+	Serial.println("Have a nice day :D");
 }
 
 void loop() {}
