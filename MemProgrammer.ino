@@ -50,35 +50,35 @@ void writeToMemory(StorageDevice storageDevice, int address, byte data) {
 	} else if (storageDevice == StorageDevice::SST39SFSeries) {
 		digitalWrite(writeEnablePin, HIGH);
 		setIOPinsMode(OUTPUT);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x5555, false);
 		setOutputData(0xaa);
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x2aaa, false);
 		setOutputData(0x55);
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x5555, false);
 		setOutputData(0xa0);
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(address, false);
 		setOutputData(data);
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 	} else {
 		Serial.println("Unable to write to memory. Storage device not recognized");
 	}
@@ -104,14 +104,14 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 	} else if (storageDevice == StorageDevice::SST39SFSeries) {
 		digitalWrite(writeEnablePin, HIGH);
 		setIOPinsMode(OUTPUT);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x5555, false);
 		setOutputData(0xaa);
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x2aaa, false);
 		setOutputData(0x55);
@@ -119,7 +119,7 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x5555, false);
 		setOutputData(0x80);
@@ -127,7 +127,7 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x5555, false);
 		setOutputData(0xaa);
@@ -135,7 +135,7 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x2aaa, false);
 		setOutputData(0x55);
@@ -143,7 +143,7 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 
 		setMemoryAddress(0x5555, false);
 		setOutputData(0x10);
@@ -151,7 +151,7 @@ void clearMemory(StorageDevice storageDevice, int maxAddress) {
 		digitalWrite(writeEnablePin, HIGH);
 		digitalWrite(writeEnablePin, LOW);
 		digitalWrite(writeEnablePin, HIGH);
-		delay(10);
+		delayMicroseconds(10);
 	} else {
 		Serial.println("Unable to clear memory. Storage device not recognized");
 	}
@@ -230,7 +230,6 @@ void setup() {
 
 	Serial.println("Commencing programming");
 	Serial.println("Send next byte");
-	delay(1000);
 
 	while (timeSinceLastData < timeoutTime) {
 		int now = millis();
@@ -245,7 +244,6 @@ void setup() {
 			currentAddress++;
 			timeSinceLastData = 0;
 			Serial.println("Send next byte");
-			delay(1000);
 		} else {
 			timeSinceLastData += millis() - now;
 		}

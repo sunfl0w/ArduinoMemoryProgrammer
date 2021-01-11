@@ -38,10 +38,7 @@ def main():
     time.sleep(3)
 
     while(not programmingEnded):
-        #print("Reading")
-        data = ser.readline()
-        #print(data)
-        line = data.decode('utf-8')
+        line = ser.readline().decode('utf-8')
         line = line.replace('\r', '')
         line = line.replace('\n', '')
         print("Arduino: " + line)
@@ -61,7 +58,7 @@ def main():
 
             ser.write(bytes([data[currentIndex]]))
             currentIndex = currentIndex + 1
-            time.sleep(0.1) # sleep 10 ms to move data more slowly
+            time.sleep(0.001) # sleep 1 ms to move data more slowly
 
         if(line == "Goodbye"):
             print("Closing connection")
